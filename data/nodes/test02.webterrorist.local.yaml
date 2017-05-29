@@ -1,0 +1,19 @@
+---
+classes:
+  - vswitch::ovs
+  - profiles::vswitch
+# - neutron
+  - profiles::neutron
+
+neutron::core_plugin: 'ml2'
+neutron::service_plugins: ['router2']
+neutron::dns_domain: 'webterrorist.local.'
+neutron::default_transport_url: 'rabbit://openstack:askgoogle@192.168.253.10'
+
+authtoken::password: 'askgoogle'
+authtoken::auth_url: 'http://192.168.253.10:35357'
+authtoken::auth_uri: 'http://192.168.253.10:5000'
+authtoken::memcached_servers: '192.168.253.10:11211'
+authtoken::region_name: 'ImperiumAlpha'
+
+neutron::server::database_connection: 'mysql+pymysql://neutron:Aphe7eeph3@127.0.0.1:3306/neutron'

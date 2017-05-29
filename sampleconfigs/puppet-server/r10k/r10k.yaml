@@ -1,0 +1,12 @@
+# location for cached repos
+:cachedir: '/var/cache/r10k'
+
+# git repositories containing environments
+:sources:
+  :base:
+    remote: '/srv/puppet.git'
+    basedir: '/etc/puppetlabs/code/environments'
+
+# purge non-existing environments found here
+:purgedirs:
+  - '/etc/puppetlabs/code/environments'

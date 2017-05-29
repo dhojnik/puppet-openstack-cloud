@@ -1,0 +1,23 @@
+---
+classes:
+  - vswitch::ovs
+  - l23network
+  - profiles::neutron
+
+network_scheme:
+  version: 1.1
+  provider: lnx
+  interfaces:
+    eth1:
+      mtu: 1500
+  transformations:
+    - action: add-br
+      name: openstack
+      provider: ovs
+    - action: add-port
+      name: eth1
+      bridge: openstack
+      provider: ovs
+  endpoints:
+    br-prv:
+      IP: dhcp

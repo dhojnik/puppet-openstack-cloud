@@ -1,0 +1,5 @@
+---
+class: percona::repo
+
+percona::repo::percona_release_basearch_enabled: 1
+percona::repo::percona_release_noarch_enabled: 1

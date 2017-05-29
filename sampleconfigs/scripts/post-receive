@@ -1,0 +1,15 @@
+#!/bin/bash
+
+umask 0002
+
+while read oldrev newrev ref
+do
+    branch=$(echo $ref | cut -d/ -f3)
+    echo
+    echo "--> Deploying ${branch}..."
+    echo
+    /opt/puppetlabs/puppet/bin/r10k deploy environment $branch -p
+    # sometimes r10k gets permissions wrong too
+    find /etc/puppetlabs/code/environments/production/modules -type d -exec chmod 2775 {} \; 2> /dev/null
+    find /etc/puppetlabs/code/environments/production/modules -type f -exec chmod 664 {} \; 2> /dev/null
+done

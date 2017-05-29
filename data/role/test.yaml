@@ -1,0 +1,38 @@
+---
+classes:
+  - vswitch::ovs
+  - profiles::vswitch
+
+postgresql::server::config_entry:
+  wal_level:
+    value: 'hot_standby'
+  max_wal_senders:
+    value: 3
+  wal_keep_segments:
+    value: 8
+
+postgresql::server::pg_hba_rule:
+  postgres:
+    order: '001'
+    description: 'testing postgres'
+    type: 'local'
+    database: 'all'
+    user: 'postgres'
+    auth_method: 'md5'
+  replication:
+    description: 'enable replication'
+    type: 'hostssl'
+    database: 'replication'
+    user: 'rep'
+    address: '10.40.0.14/32'
+    auth_method: 'md5'
+
+neutron::config:
+  allow_overlapping_ips: 'true'
+  rabbit_password: 'password'
+  rabbit_user: 'guest'
+  rabbit_host: '192.168.253.11'
+
+neutron::agents::ml2::ovss:
+  local_ip: '192.168.1.11'
+  tunnel_types: 'vxlan'

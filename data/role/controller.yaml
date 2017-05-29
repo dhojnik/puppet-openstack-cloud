@@ -1,0 +1,12 @@
+---
+classes:
+  - percona::repo
+  - mysql::server
+  - rabbitmq
+  - profiles::base
+  - profiles::keystone
+  - profiles::horizon
+  - nova
+  - profiles::controller
+  - profiles::neutron
+  - profiles::glance

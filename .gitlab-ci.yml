@@ -1,0 +1,3 @@
+job:
+  script:
+    - sudo /usr/local/bin/r10k deploy -c /usr/local/etc/puppet/r10k/r10k.yaml environment staging --color -p

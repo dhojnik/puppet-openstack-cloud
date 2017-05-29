@@ -1,0 +1,577 @@
+---
+# Hosts & IPs
+# This should automatically populate from Puppet, but if not, it
+# can be manually defined here:
+this_node: &this_node "%{::ipaddress}"
+
+# Uncomment & edit the following line to set the IP address of your Control
+# node. This is the node where the API services, mysql, and RabbitMQ run.
+control_node: &control_node '172.16.70.12'
+
+# Uncomment & edit the following line to set the IP address of your
+# Compute node. This is the node where VMs run.
+compute_node: &compute_node "%{::ipaddress}"
+
+# Edit the following line to set a test user password
+deployments::profile::users::password: "test"
+
+# Edit the following line to set an admin user password
+admin_password: &admin_password "admin_pass"
+
+# Edit the following line to change the password for RabbitMQ.
+# Don't change the &rabbit_password portion.
+rabbit_password: &rabbit_password "elmer_fudd"
+
+# Edit the following line to replace the quoted "database_password"
+# with something more secure for access each component has to
+# the database.  Don't change the &db_pass portion.
+db_pass: &db_pass "database_password"
+
+# Edit the following so your services have more secure defaults,
+# You will likely not need to use these yourself while interacting
+# with your OpenStack deployment, but it's better if they are more
+# secure than the defaults provided.
+keystone::admin_token: "secret_token"
+glance::keystone::auth::password: &service_user_pass "something_secret"
+neutron::agents::metadata::shared_secret: &shared_secret "something_more_secret"
+
+# Edit the following subnet to match the network your
+# OpenStack deployment will use.
+neutron_subnet:
+  Subnet1:
+    gateway_ip: 10.190.0.1
+    network_name: Network1
+    cidr: 10.190.0.0/24
+    allocation_pools:
+      - start=10.190.0.5,end=10.190.0.254
+    enable_dhcp: true
+    dns_nameservers:
+     - 8.8.8.8
+     - 8.8.4.4
+  ext-subnet:
+    gateway_ip: 203.0.113.1
+    network_name: ext-net
+    cidr: 203.0.113.0/24
+    allocation_pools:
+      - start=203.0.113.5,end=203.0.113.200
+    enable_dhcp: false
+
+# Version of CirrOS to install
+deployments::profile::glance::cirros_version: "0.3.4"
+
+# Which release of OpenStack to install
+profiles::uca::release: "ocata"
+# Which pocket to use:
+# - use updates for a released version like Liberty
+# - use proposed for an unreleased version like Mitaka
+profiles::uca::repo: "proposed"
+
+# Set to true to enable debug mode!
+debug: &debug "false"
+keystone::debug: *debug
+cinder::debug: *debug
+ceilometer::debug: *debug
+glance::api::debug: true
+glance::registry::debug: true
+ironic::debug: *debug
+ironic::logging::debug: *debug
+nova::debug: *debug
+neutron::debug: *debug
+neutron::agents::l3::debug: *debug
+neutron::agents::dhcp::debug: *debug
+neutron::agents::metadata::debug: *debug
+
+# Passwords
+admin_tenant: &admin_tenant "openstack"
+admin_user: &admin_user "admin"
+region_name: &region_name "RegionOne"
+keystone::roles::admin::password: *admin_password
+keystone::roles::admin::admin_tenant: *admin_tenant
+keystone::roles::admin::admin: *admin_user
+keystone::roles::admin::email: "root@%{hiera('control_node')}"
+keystone::roles::admin::admin_roles:
+ - 'admin'
+ - '_member_'
+ - 'SwiftOperator'
+keystone::roles::admin::admin_tenant_desc: "OpenStack on webterrorist.local"
+keystone::roles::admin::service_tenant_desc: "OpenStack on webterrorist.local"
+glance::api::keystone_password: *service_user_pass
+glance::registry::keystone_password: *service_user_pass
+cinder::api::keystone_password: *service_user_pass
+cinder::keystone::authtoken::password: *service_user_pass
+ceilometer::keystone::auth::password: *service_user_pass
+ceilometer::api::keystone_password: *service_user_pass
+swift::keystone::auth::password: *service_user_pass
+swift::proxy::authtoken::admin_password: *service_user_pass
+ironic::keystone::auth::password: *service_user_pass
+ironic::api::admin_password: *service_user_pass
+neutron::keystone::auth::password: *service_user_pass
+neutron::keystone::authtoken::password: *service_user_pass
+neutron::server::auth_password: *service_user_pass
+neutron::server::notifications::password: *service_user_pass
+
+# Database stuff
+mysql::server::root_password: *db_pass
+mysql::client::package_name: 'percona-server-client-5.7'
+mysql::server::package_name: 'percona-server-server-5.7'
+
+glance::db::mysql::user: "glance"
+glance::db::mysql::password: *db_pass
+keystone::db::mysql::user: "keystone"
+keystone::db::mysql::password: *db_pass
+cinder::db::mysql::user: "cinder"
+cinder::db::mysql::password: *db_pass
+nova::db::mysql::user: "nova"
+nova::db::mysql::password: *db_pass
+nova::db::mysql_api::user: "nova_api"
+nova::db::mysql_api::password: *db_pass
+nova::db::mysql_placement::user: "nova_placement"
+nova::db::mysql_placement::password: *db_pass
+ceilometer::db::mysql::user: "ceilometer"
+ceilometer::db::mysql::password: *db_pass
+ironic::db::mysql::user: "ironic"
+ironic::db::mysql::password: *db_pass
+neutron::db::mysql::user: "neutron"
+neutron::db::mysql::password: *db_pass
+
+# Sync DB: should be true, don't change this
+sync_db: &sync_db true
+cinder::api::sync_db: *sync_db
+ceilometer::db::sync_db: *sync_db
+ironic::sync_db: *sync_db
+nova::api::sync_db: *sync_db
+nova::api::sync_db_api: *sync_db
+neutron::server::sync_db: *sync_db
+keystone::sync_db: *sync_db
+glance::registry::sync_db: *sync_db
+
+# Package Ensures
+package_ensure: &package_ensure "latest"
+cinder::package_ensure: *package_ensure
+cinder::volume::package_ensure: *package_ensure
+cinder::client::package_ensure: *package_ensure
+cinder::scheduler::package_ensure: *package_ensure
+ceilometer::package_ensure: *package_ensure
+ceilometer::client::ensure: *package_ensure
+ceilometer::agent::polling: *package_ensure
+keystone::package_ensure: *package_ensure
+glance::package_ensure: *package_ensure
+glance::api::package_ensure: *package_ensure
+glance::registry::package_ensure: *package_ensure
+horizon::package_ensure: *package_ensure
+ironic::package_ensure: *package_ensure
+ironic::api::package_ensure: *package_ensure
+ironic::client::package_ensure: *package_ensure
+ironic::conductor::package_ensure: *package_ensure
+nova::client::ensure: *package_ensure
+nova::ensure_package: *package_ensure
+nova::cert::ensure_package: *package_ensure
+nova::compute::ensure_package: *package_ensure
+nova::conductor::ensure_package: *package_ensure
+nova::consoleauth::ensure_package: *package_ensure
+nova::scheduler::ensure_package: *package_ensure
+nova::vncproxy::ensure_package: *package_ensure
+nova::placement::ensure_package: *package_ensure
+neutron::client::ensure_package: *package_ensure
+neutron::server::ensure_package: *package_ensure
+neutron::ensure_package: *package_ensure
+neutron::plugins::ml2::ensure_package: *package_ensure
+openstacklib::openstackclient::package_ensure: *package_ensure
+swift::client::ensure: *package_ensure
+swift::client_package_ensure: *package_ensure
+swift::package_ensure: *package_ensure
+swift::storage::generic::package_ensure: *package_ensure
+swift::storage::object::package_ensure: *package_ensure
+swift::storage::container::package_ensure: *package_ensure
+swift::storage::account::package_ensure: *package_ensure
+swift::proxy::package_ensure: *package_ensure
+
+# Endpoints
+keystone::public_endpoint: &keystone_public_endpoint "http://%{hiera('control_node')}:5000"
+keystone::admin_endpoint: &keystone_admin_endpoint "http://%{hiera('control_node')}:35357"
+keystone::endpoint::public_url: *keystone_public_endpoint
+keystone::endpoint::admin_url: *keystone_admin_endpoint
+keystone::endpoint::version: 'v3/'
+keystone::endpoint::region: *region_name
+glance::keystone::auth::public_url: &glance_url "http://%{hiera('control_node')}:9292"
+glance::keystone::auth::internal_url: *glance_url
+glance::keystone::auth::admin_url: *glance_url
+glance::keystone::auth::configure_endpoint: true
+ironic::keystone::auth::public_url: &ironic_url "http://%{hiera('control_node')}:6385"
+ironic::keystone::auth::internal_url: *ironic_url
+ironic::keystone::auth::admin_url: *ironic_url
+cinder::keystone::authtoken::public_url: &cinder_api_url "http://%{hiera('control_node')}:8776/v1/%(tenant_id)s"
+cinder::keystone::authtoken::internal_url: *cinder_api_url
+cinder::keystone::authtoken::admin_url: *cinder_api_url
+cinder::keystone::authtoken::public_url_v2: &cinder_api_url_v2 "http://%{hiera('control_node')}:8776/v2/%(tenant_id)s"
+cinder::keystone::authtoken::internal_url_v2: *cinder_api_url_v2
+cinder::keystone::authtoken::admin_url_v2: *cinder_api_url_v2
+ceilometer::keystone::auth::public_url: &ceilometer_api_url "http://%{hiera('control_node')}:8777"
+ceilometer::keystone::auth::internal_url: *ceilometer_api_url
+ceilometer::keystone::auth::admin_url: *ceilometer_api_url
+nova::keystone::auth::configure_ec2_endpoint: false
+nova::keystone::auth::internal_url: &nova_api_url "http://%{hiera('control_node')}:8774/v2.1/%(tenant_id)s"
+nova::keystone::auth::public_url: *nova_api_url
+nova::keystone::auth::admin_url: *nova_api_url
+nova::keystone::auth_placement::internal_url: &nova_placemnt_url "http://%{hiera('control_node')}:8778"
+nova::keystone::auth_placement::public_url: *nova_placemnt_url
+nova::keystone::auth_placement::admin_url: *nova_placemnt_url
+nova::keystone::auth::service_name: 'Compute Service'
+nova::keystone::auth::service_name_v3: 'Compute Service v3'
+swift::keystone::auth::public_url: &swift_api_url "http://%{hiera('control_node')}:8080/v1/%{hiera('swift::proxy::keystone::reseller_prefix')}%(tenant_id)s"
+swift::keystone::auth::internal_url: *swift_api_url
+swift::keystone::auth::admin_url: "http://%{hiera('control_node')}:8080/v1"
+neutron::keystone::auth::public_url: &neutron_api_url "http://%{hiera('control_node')}:9696"
+neutron::keystone::auth::internal_url: *neutron_api_url
+neutron::keystone::auth::admin_url: *neutron_api_url
+
+# Auth_uri = Public_Uri = port 5000
+# Identity_uri = Admin_Uri = port 35357
+ceilometer::api::auth_uri: *keystone_public_endpoint
+ceilometer::api::identity_uri: *keystone_admin_endpoint
+cinder::api::auth_uri: *keystone_public_endpoint
+cinder::api::identity_uri: *keystone_admin_endpoint
+glance::api::auth_uri: *keystone_public_endpoint
+glance::api::identity_uri: *keystone_admin_endpoint
+glance::registry::auth_uri: *keystone_public_endpoint
+glance::registry::identity_uri: *keystone_admin_endpoint
+ironic::api::auth_uri: *keystone_public_endpoint
+ironic::api::identity_uri: *keystone_admin_endpoint
+neutron::server::identity_uri: *keystone_admin_endpoint
+swift::proxy::authtoken::auth_uri: *keystone_public_endpoint
+swift::proxy::authtoken::identity_uri: *keystone_admin_endpoint
+
+# Nova stuff
+
+nova::api::auth_uri: *keystone_public_endpoint
+nova::api::identity_uri: *keystone_admin_endpoint
+nova::placement::auth_url: *keystone_admin_endpoint
+nova::keystone::auth::password: *service_user_pass
+nova::keystone::authtoken::password: *service_user_pass
+nova::keystone::authtoken::auth_uri: *keystone_public_endpoint
+nova::keystone::authtoken::auth_url: *keystone_admin_endpoint
+nova::api::admin_password: *service_user_pass
+nova::placement::password: *service_user_pass
+nova::keystone::auth_placement::password: *service_user_pass
+nova::rpc_backend: 'rabbit'
+nova::ram_allocation_ratio: '1.5'
+nova::cpu_allocation_ratio: '16.0'
+nova::disk_allocation_ratio: '3.0'
+nova::compute::resume_guests_state_on_host_boot: true
+nova::network::neutron::dhcp_domain: 'webterrorist.local.'
+nova::compute::force_raw_images: false
+nova::compute::allow_resize_to_same_host: true
+nova::network::neutron::neutron_auth_url: *keystone_admin_endpoint
+nova::network::neutron::neutron_auth_type: "password"
+nova::default_transport_url: &default_transport_url
+nova::os_region_name: *region_name
+nova::api::resume_guests_state_on_host_boot: true
+nova::api::service_neutron_metadata_proxy: true
+nova::vncproxy::host: *control_node
+nova::compute::vncproxy_host: *control_node
+nova::compute::vncserver_proxyclient_address: *compute_node
+nova::api::enabled: true
+nova::cert::enabled: true
+nova::compute::enabled: true
+nova::consoleauth::enabled: true
+nova::conductor::enabled: true
+nova::scheduler::enabled: true
+nova::placement::enabled: true
+nova::vncproxy::enabled: true
+nova::volume::enabled: true
+nova::compute::spice::enabled: true
+nova::compute::spice::server_proxyclient_address: *control_node
+nova::compute::spice::proxy_host: "openstack.webterrorist.local"
+nova::compute::spice::html5proxy_host: '0.0.0.0'
+nova::compute::spice::html5proxy_port: '6082'
+nova::compute::spice::keymap: 'de'
+nova::compute::vnc_enabled: false
+nova::api::neutron_metadata_proxy_shared_secret: *shared_secret
+nova::compute::libvirt::libvirt_virt_type: 'qemu'
+nova::compute::libvirt::migration_support: true
+nova::compute::libvirt::vncserver_listen: '0.0.0.0'
+nova::glance_api_servers: *glance_url
+nova::placement::os_region_name: "%{hiera('region_name')}"
+nova::network::neutron::neutron_region_name: "%{hiera('region_name')}"
+nova::network::neutron::neutron_password: *service_user_pass
+nova::db::database_connection: "mysql+pymysql://%{hiera('nova::db::mysql::user')}:%{hiera('nova::db::mysql::password')}@localhost:3306/nova"
+nova::db::api_database_connection: "mysql+pymysql://%{hiera('nova::db::mysql_api::user')}:%{hiera('nova::db::mysql_api::password')}@localhost:3306/nova_api"
+nova::db::placement_database_connection: "mysql+pymysql://%{hiera('nova::db::mysql_placement::user')}:%{hiera('nova::db::mysql_placement::password')}@localhost:3306/nova_placement"
+
+# This below will not work without a version on the endpoint.
+nova::network::neutron::neutron_auth_url: "%{hiera('keystone::admin_endpoint')}/v3"
+nova::network::neutron::neutron_url: "http://%{hiera('control_node')}:9696"
+
+# Nova ceiloemeter conenctions
+nova::compute::instance_usage_audit: true
+nova::compute::instance_usage_audit_period: 'hour'
+nova::notify_on_state_change: 'vm_and_task_state'
+nova::notification_driver: 'messagingv2'
+
+# Glance stuff
+glance::api::stores:
+ - 'file'
+ - 'http'
+glance::api::default_store: 'file'
+glance::registry::database_connection: &glance_db_connection "mysql+pymysql://%{hiera('glance::db::mysql::user')}:%{hiera('glance::db::mysql::password')}@127.0.0.1/glance"
+glance::api::database_connection: *glance_db_connection
+glance::api::authtoken::password: *service_user_pass
+glance::api::authtoken::username: 'glance'
+glance::api::authtoken::auth_uri: *keystone_public_endpoint
+glance::api::authtoken::auth_url: *keystone_admin_endpoint
+glance::api::authtoken::user_domain_name: Default
+glance::api::authtoken::project_domain_name: Default
+glance::api::authtoken::project_name: services
+glance::api::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
+glance::registry::authtoken::password: *service_user_pass
+glance::registry::authtoken::username: 'glance'
+glance::registry::authtoken::auth_uri: *keystone_public_endpoint
+glance::registry::authtoken::auth_url: *keystone_admin_endpoint
+glance::registry::authtoken::user_domain_name: Default
+glance::registry::authtoken::project_domain_name: Default
+glance::registry::authtoken::project_name: services
+glance::registry::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
+
+# Rabbit
+rabbitmq::server::node_ip_address: '0.0.0.0'
+rabbit_host: &rabbit_host "%{hiera('control_node')}"
+rabbit_user: &rabbit_user "openstack"
+
+rabbitmq::default_pass: *rabbit_password
+rabbitmq::default_user: *rabbit_user
+rabbitmq::management_hostname: *rabbit_host
+
+rabbitmq::server::port: 5672
+rabbitmq::delete_guest_user: true
+
+default_transport_host: *rabbit_host
+default_transport_user: &default_transport_user 'openstack'
+default_transport_password: &default_transport_password 'elmer_fudd'
+default_transport_url: &default_transport_url "rabbit://%{hiera('default_transport_user')}:%{hiera('default_transport_password')}@%{hiera('default_transport_host')}"
+
+ceilometer::default_transport_url: *default_transport_url
+cinder::default_transport_url: *default_transport_url
+glance::default_transport_url: *default_transport_url
+ironic::default_transport_url: *default_transport_url
+nova::default_transport_url: *default_transport_url
+neutron::default_transport_url: *default_transport_url
+
+# horizon
+horizon::secret_key: 'abcfedghijklmnopqrstuvwxyz1234567890'
+horizon::keystone_url: "http://%{hiera('control_node')}:5000/v3"
+# Note: insecure change to your IP Address if desired for better security
+horizon::allowed_hosts:
+ - "*"
+horizon::api_versions:
+    'identity': 3
+horizon::compress_offline: false
+apache::default_vhost: false
+horizon::django_session_engine: 'django.contrib.sessions.backends.cache'
+horizon::cache_backend: 'django.core.cache.backends.memcached.MemcachedCache'
+horizon::cache_server_ip: '127.0.0.1'
+horizon::cache_server_port: 11211
+
+# Keystone
+keystone::database_connection: "mysql://%{hiera('keystone::db::mysql::user')}:%{hiera('keystone::db::mysql::password')}@127.0.0.1/keystone"
+keystone::wsgi::apache::ssl: false
+keystone::service_name: 'httpd'
+
+# cinder stuff
+# cinder::setup_test_volume::size: 10G
+# cinder::setup_test_volume::volume_path: '/var/lib/cinder'
+# cinder::setup_test_volume::loopback_device: '/dev/loop2'
+# cinder::setup_test_volume::volume_name: 'cinder-volumes'
+cinder::database_connection: "mysql+pymysql://%{hiera('cinder::db::mysql::user')}:%{hiera('cinder::db::mysql::password')}@127.0.0.1/cinder"
+
+# Neutron
+neutron::api::auth_uri: *keystone_admin_endpoint
+neutron::api::identity_uri: *keystone_admin_endpoint
+neutron::server::auth_uri: *keystone_admin_endpoint
+neutron::server::identity_uri: *keystone_admin_endpoint
+neutron::server::notifications::auth_uri: *keystone_admin_endpoint
+neutron::server::notifications::identity_uri: *keystone_admin_endpoint
+neutron::keystone::authtoken::auth_url: *keystone_admin_endpoint
+neutron::keystone::authtoken::auth_uri: *keystone_public_endpoint
+neutron::server::notifications::auth_url: *keystone_admin_endpoint
+neutron::dns_domain: 'webterrorist.local.'
+neutron::allow_overlapping_ips: true
+neutron::core_plugin: 'ml2'
+neutron::server::notifications::user_domain_id: 'default'
+neutron::server::database_connection: "mysql+pymysql://%{hiera('neutron::db::mysql::user')}:%{hiera('neutron::db::mysql::password')}@127.0.0.1/neutron"
+neutron::service_plugin:
+ - 'router'
+neutron::plugins::ml2::type_drivers:
+ - 'vxlan'
+ - 'flat'
+ - 'vlan'
+neutron::plugins::ml2::tenant_network_types:
+ - 'vxlan'
+neutron::plugins::ml2::mechanism_drivers:
+ - 'openvswitch'
+neutron::agents::ml2::ovs::enable_tunneling: true
+neutron::agents::ml2::ovs::local_ip: *this_node
+neutron::agents::ml2::ovs::tunnel_types:
+ - 'vxlan'
+neutron::agents::dhcp: true
+neutron::service_plugins:
+ - 'router'
+
+# MTU settings for the nova compute network device and dnsmasq
+mtu: &mtu '1450'
+nova::compute::network_device_mtu: *mtu
+neutron::agents::dhcp::dnsmasq_config_file: '/etc/neutron/dnsmasq.conf'
+dnsmasq_conf_contents: "dhcp-option-force=26,%{hiera('mtu')}"
+
+tenant_for_router: &tenant_for_router 'test_project'
+neutron_network:
+  Network1:
+    shared: true
+    router_external: false
+    provider_network_type: 'vxlan'
+    ensure: present
+  ext-net:
+    shared: true
+    router_external: true
+    provider_network_type: 'flat'
+    provider_physical_network: 'br-ex'
+    ensure: present
+neutron_router:
+  Router1:
+    admin_state_up: true
+    tenant_name: *tenant_for_router
+    gateway_network_name: 'ext-net'
+    ensure: present
+neutron_router_interface:
+  Router1:Subnet1:
+    ensure: present
+
+neutron::server::notifications::os_region_name: *region_name
+
+# change dummy0 if you're using a different ethernet device for your traffic
+extnet_device: &extnet_device 'dummy0'
+bridge_uplinks:
+ - "br-ex:%{hiera('extnet_device')}"
+bridge_mappings:
+ - "openstack:br-ex"
+
+# Ceilometer
+ceilometer::metering_secret: "ceilometer_secret"
+ceilometer::api::enabled: true
+ceilometer::agent::auth::auth_password: *service_user_pass
+ceilometer::agent::auth::auth_region: *region_name
+ceilometer::agent::auth::auth_url: "http://%{hiera('control_node')}:5000/v3"
+ceilometer::agent::auth::auth_type: 'password'
+ceilometer::agent::auth::auth_user_domain_name: 'default'
+ceilometer::agent::auth::auth_project_domain_name: 'default'
+ceilometer::agent::polling::ipmi_namespace: false
+ceilometer::db::database_connection: "mysql+pymysql://%{hiera('ceilometer::db::mysql::user')}:%{hiera('ceilometer::db::mysql::password')}@127.0.0.1/ceilometer"
+
+# Swift
+swift::keystone::auth::configure_endpoint: true
+swift::keystone::auth::configure_s3_endpoint: false
+swift::swift_hash_path_suffix: 'secret_suffix'
+swift::swift_hash_path_prefix: 'secret_prefix'
+swift::storage: *control_node
+swift::proxy::pipeline:
+ - 'catch_errors'
+ - 'healthcheck'
+ - 'cache'
+ - 'tempurl'
+ - 'ratelimit'
+ - 'authtoken'
+ - 'keystone'
+ - 'formpost'
+ - 'staticweb'
+ - 'container_quotas'
+ - 'account_quotas'
+ - 'proxy-logging'
+ - 'proxy-server'
+swift::proxy::keystone::operator_roles:
+ - '_member_'
+ - 'admin'
+ - 'SwiftOperator'
+swift::keystone::auth::operator_roles:
+ - 'admin'
+ - 'SwiftOperator'
+ - 'ResellerAdmin'
+swift::proxy::keystone::reseller_prefix: 'KEY_'
+swift::proxy::proxy_local_net_ip: *control_node
+swift::storage::all::storage_local_net_ip: *control_node
+swift::storage::all::incoming_chmod: 'Du=rwx,g=rx,o=rx,Fu=rw,g=r,o=r'
+swift::storage::all::outcoming_chmod: 'Du=rwx,g=rx,o=rx,Fu=rw,g=r,o=r'
+# size will be seek * byte_size or 256M per device
+swift_loopback_devices:
+  '1':
+    'byte_size': '1024'
+    'seek': '256K'
+  '2':
+    'byte_size': '1024'
+    'seek': '256K'
+  '3':
+    'byte_size': '1024'
+    'seek': '256K'
+swift_ring_object_devices:
+  '%{hiera("control_node")}:6000/1':
+    'zone': 1
+    'weight': 1
+  '%{hiera("control_node")}:6000/2':
+    'zone': 1
+    'weight': 1
+  '%{hiera("control_node")}:6000/3':
+    'zone': 1
+    'weight': 1
+swift_ring_container_devices:
+  '%{hiera("control_node")}:6001/1':
+    'zone': 1
+    'weight': 1
+  '%{hiera("control_node")}:6001/2':
+    'zone': 1
+    'weight': 1
+  '%{hiera("control_node")}:6001/3':
+    'zone': 1
+    'weight': 1
+swift_ring_account_devices:
+  '%{hiera("control_node")}:6002/1':
+    'zone': 1
+    'weight': 1
+  '%{hiera("control_node")}:6002/2':
+    'zone': 1
+    'weight': 1
+  '%{hiera("control_node")}:6002/3':
+    'zone': 1
+    'weight': 1
+
+# Ironic stuff
+ironic::enable_drivers:
+  - 'pxe_ssh'
+
+ironic::db::database_connection: "mysql+pymysql://%{hiera('ironic::db::mysql::user')}:%{hiera('ironic::db::mysql::password')}@127.0.0.1/ironic"
+
+# test user & openrc stuff
+profiles::openstack_users::project: "test_project"
+profiles::openstack_users::username: "test"
+profiles::openstack_users::password: "foobar"
+profiles::openstack_users::roles:
+ - '_member_'
+ - 'SwiftOperator'
+deployments::profile::openrcs::openrcs:
+  "%{hiera('admin_user')}":
+     "path": "/etc/openrc.%{hiera('admin_user')}"
+     "tenant": "%{hiera('admin_tenant')}"
+     "user": "%{hiera('admin_user')}"
+     "password": "%{hiera('admin_password')}"
+  "%{hiera('profiles::openstack_users::username')}":
+     "path": "/etc/openrc.%{hiera('profiles::openstack_users::username')}"
+     "tenant": "%{hiera('profiles::openstack_users::project')}"
+     "user": "%{hiera('profiles::openstack_users::username')}"
+     "password": "%{hiera('profiles::openstack_users::password')}"
+
+# tempest stuff
+deployments::tests::tempest::control_node: *control_node
+deployments::tests::tempest::admin_username: *admin_user
+deployments::tests::tempest::admin_password: *admin_password
+deployments::tests::tempest::admin_tenant_name: *admin_tenant
+tempest::config::tempest_config:
+    object-storage/operator_role:
+        path: '/tmp/tempest/etc/tempest.conf'
+        value: 'SwiftOperator'
