@@ -17,8 +17,4 @@ integration for manila
 
 this should also be a base to develope and port openstack finaly on FreeBSD 
 
-thanks a lot by the guys behind https://deploymentsbook.com/ I'm using some code from them which hased increased the speed of developing for me 
-
-
-
-
+thanks a lot by the guys behind https://deploymentsbook.com/ I'm using some code from them which hasincreased the speed of developing for me 
