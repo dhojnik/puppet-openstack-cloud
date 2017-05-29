@@ -1,4 +1,4 @@
-This is an setup that depolys an openstack cloud with release ocata using puppet 4, git, r10k hiera 5 and a in bash written external node classifer for roles and environments. It has been developed under FreeBSD as puppetmaster and tested with Ubuntu 16.04. But with some small changes it should also run with CentOS 7.2
+This is an setup that deploys an openstack cloud with release ocata using puppet 4, git, r10k hiera 5 and a in bash written external node classifer for roles and environments. It has been developed under FreeBSD as puppetmaster and tested with Ubuntu 16.04. But with some small changes it should also run with CentOS 7.2
 
 Controller Node:
 OpenVswitch, Keystone, Nova, Glance, Horizon, Neutron
