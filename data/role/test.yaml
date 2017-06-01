@@ -26,13 +26,3 @@ postgresql::server::pg_hba_rule:
     user: 'rep'
     address: '10.40.0.14/32'
     auth_method: 'md5'
-
-neutron::config:
-  allow_overlapping_ips: 'true'
-  rabbit_password: 'password'
-  rabbit_user: 'guest'
-  rabbit_host: '192.168.253.11'
-
-neutron::agents::ml2::ovss:
-  local_ip: '192.168.1.11'
-  tunnel_types: 'vxlan'
