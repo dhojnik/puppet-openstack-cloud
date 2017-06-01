@@ -21,4 +21,4 @@ swift::keystone::auth::configure_endpoint: false
 
 nova::db::database_connection: sqlite:///var/lib/nova/nova.sqlite
 nova::db::api_database_connection: sqlite:///var/lib/nova/nova.sqlite
-nova::db::placement_database_connection: sqlite:///var/lib/nova/nova.sqlit
+nova::db::placement_database_connection: sqlite:///var/lib/nova/nova.sqlite

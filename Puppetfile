@@ -98,8 +98,6 @@ mod 'nginx',
   :git => 'https://github.com/voxpupuli/puppet-nginx.git',
   :tag => 'v0.6.0'
 
-# mod 'puppet-nginx', '0.6.0'
-
 mod 'vsftp',
   :git => 'https://github.com/thias/puppet-vsftpd.git',
   :tag => '0.2.1'
@@ -107,11 +105,6 @@ mod 'vsftp',
 mod 'squid',
   :git => 'https://github.com/voxpupuli/puppet-squid.git',
   :tag => 'v0.5.0'
-
-# mod 'puppet-squid', '0.5.0'
-# mod 'puppet-selinux', '1.0.0'
-# mod 'stahnma/epel', '1.2.2'
-# mod 'stankevich/python', '1.18.2'
 
 mod 'squid',
   :git => 'https://github.com/stankevich/puppet-python.git',
@@ -202,7 +195,7 @@ mod 'murano',
   :branch => 'stable/ocata'
 
 mod 'neutron',
-  :git => 'https://github.com/dhojnik/puppet-neutron.git',
+  :git => 'https://github.com/openstack/puppet-neutron.git',
   :branch => 'stable/ocata'
 
 mod 'nova',
