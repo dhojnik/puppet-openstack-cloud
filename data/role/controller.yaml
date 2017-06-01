@@ -2,6 +2,7 @@
 classes:
   - percona::repo
   - mysql::server
+  - memcached
   - profiles::rabbitmq
   - profiles::base
   - profiles::keystone

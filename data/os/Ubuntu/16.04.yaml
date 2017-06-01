@@ -247,6 +247,7 @@ nova::api::auth_uri: *keystone_public_endpoint
 nova::api::identity_uri: *keystone_admin_endpoint
 nova::placement::auth_url: *keystone_admin_endpoint
 nova::keystone::auth::password: *service_user_pass
+nova::keystone::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
 nova::keystone::authtoken::password: *service_user_pass
 nova::keystone::authtoken::auth_uri: *keystone_public_endpoint
 nova::keystone::authtoken::auth_url: *keystone_admin_endpoint
@@ -332,16 +333,16 @@ glance::registry::authtoken::project_domain_name: Default
 glance::registry::authtoken::project_name: services
 glance::registry::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
 
+# Memcached
+memcached::listen_ip: *control_node
+
 # Rabbit
-rabbitmq::server::node_ip_address: '0.0.0.0'
 rabbit_host: &rabbit_host "%{hiera('control_node')}"
 rabbit_user: &rabbit_user "openstack"
 
 rabbitmq::default_pass: *rabbit_password
 rabbitmq::default_user: *rabbit_user
-rabbitmq::management_hostname: *rabbit_host
 
-rabbitmq::server::port: 5672
 rabbitmq::delete_guest_user: true
 
 default_transport_host: *rabbit_host
@@ -390,6 +391,7 @@ neutron::server::auth_uri: *keystone_admin_endpoint
 neutron::server::identity_uri: *keystone_admin_endpoint
 neutron::server::notifications::auth_uri: *keystone_admin_endpoint
 neutron::server::notifications::identity_uri: *keystone_admin_endpoint
+neutron::keystone::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
 neutron::keystone::authtoken::auth_url: *keystone_admin_endpoint
 neutron::keystone::authtoken::auth_uri: *keystone_public_endpoint
 neutron::server::notifications::auth_url: *keystone_admin_endpoint

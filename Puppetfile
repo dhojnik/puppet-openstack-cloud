@@ -42,6 +42,10 @@ mod 'apache',
   :git => 'https://github.com/puppetlabs/puppetlabs-apache.git',
   :tag => '1.11.0'
 
+mod 'memcached',
+  :git => 'https://github.com/saz/puppet-memcached.git',
+  :tag => 'v3.0.2'
+
 mod 'apt',
   :git => 'https://github.com/puppetlabs/puppetlabs-apt',
   :ref => '3.0.0'
