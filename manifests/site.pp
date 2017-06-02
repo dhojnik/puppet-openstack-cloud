@@ -1,5 +1,5 @@
 node default
 {
-hiera_include('classes')
+lookup('classes', Array[String], 'unique').include
 }
 

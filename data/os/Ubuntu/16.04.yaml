@@ -33,7 +33,9 @@ db_pass: &db_pass "database_password"
 # secure than the defaults provided.
 keystone::admin_token: "secret_token"
 glance::keystone::auth::password: &service_user_pass "something_secret"
-neutron::agents::metadata::shared_secret: &shared_secret "something_more_secret"
+
+# Shared secret for Neutron and Nova
+shared_secret: &shared_secret "something_more_secret"
 
 # Edit the following subnet to match the network your
 # OpenStack deployment will use.
@@ -109,6 +111,8 @@ neutron::keystone::auth::password: *service_user_pass
 neutron::keystone::authtoken::password: *service_user_pass
 neutron::server::auth_password: *service_user_pass
 neutron::server::notifications::password: *service_user_pass
+designate::keystone::authtoken::admin_password: *service_user_pass
+designate::keystone::auth::password: *service_user_pass
 
 # Database stuff
 mysql::server::root_password: *db_pass
@@ -133,6 +137,8 @@ ironic::db::mysql::user: "ironic"
 ironic::db::mysql::password: *db_pass
 neutron::db::mysql::user: "neutron"
 neutron::db::mysql::password: *db_pass
+designate::db::mysql::user: "designate"
+designate::db::mysql::password: *db_pass
 
 # Sync DB: should be true, don't change this
 sync_db: &sync_db true
@@ -144,6 +150,7 @@ nova::api::sync_db_api: *sync_db
 neutron::server::sync_db: *sync_db
 keystone::sync_db: *sync_db
 glance::registry::sync_db: *sync_db
+designate::db::sync_db: *sync_db
 
 # Package Ensures
 package_ensure: &package_ensure "latest"
@@ -224,6 +231,10 @@ swift::keystone::auth::admin_url: "http://%{hiera('control_node')}:8080/v1"
 neutron::keystone::auth::public_url: &neutron_api_url "http://%{hiera('control_node')}:9696"
 neutron::keystone::auth::internal_url: *neutron_api_url
 neutron::keystone::auth::admin_url: *neutron_api_url
+designate::keystone::auth::public_url: &designate_api_url "http://%{hiera('control_node')}:9001"
+designate::keystone::auth::internal_url: *designate_api_url
+designate::keystone::auth::admin_url: *designate_api_url
+
 
 # Auth_uri = Public_Uri = port 5000
 # Identity_uri = Admin_Uri = port 35357
@@ -333,6 +344,19 @@ glance::registry::authtoken::project_domain_name: Default
 glance::registry::authtoken::project_name: services
 glance::registry::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
 
+# Designate stuff
+
+designate::db::database_connection: "mysql+pymysql://%{hiera('designate::db::mysql::user')}:%{hiera('designate::db::mysql::password')}@127.0.0.1:3306/designate"
+designate::api::auth_strategy: "keystone"
+designate::keystone::authtoken::auth_host: *control_node
+designate::keystone::authtoken::auth_port: '35357'
+designate::keystone::authtoken::auth_protocol: 'http'
+designate::keystone::authtoken::admin_tenant_name: services
+designate::keystone::authtoken:admin_user: 'designate'
+designate::keystone::authtoken::password: *service_user_pass
+
+
+
 # Memcached
 memcached::listen_ip: *control_node
 
@@ -356,6 +380,7 @@ glance::default_transport_url: *default_transport_url
 ironic::default_transport_url: *default_transport_url
 nova::default_transport_url: *default_transport_url
 neutron::default_transport_url: *default_transport_url
+designate::default_transport_url: *default_transport_url
 
 # horizon
 horizon::secret_key: 'abcfedghijklmnopqrstuvwxyz1234567890'
@@ -395,6 +420,7 @@ neutron::keystone::authtoken::memcached_servers: "%{hiera('control_node')}:11211
 neutron::keystone::authtoken::auth_url: *keystone_admin_endpoint
 neutron::keystone::authtoken::auth_uri: *keystone_public_endpoint
 neutron::server::notifications::auth_url: *keystone_admin_endpoint
+neutron::agents::metadata::shared_secret: *shared_secret
 neutron::dns_domain: 'webterrorist.local.'
 neutron::allow_overlapping_ips: true
 neutron::core_plugin: 'ml2'

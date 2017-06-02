@@ -4,9 +4,14 @@ deployments::profile::users::password: "Xr3XQ0GOj5PEV6B"
 
 admin_password: &admin_password "c0qm8SaTf6Pk9p8"
 
-rabbit_password: &rabbit_password "CzEbq6sPaH3XOjj"
+rabbit_password: &rabbit_password 'CzEbq6sPaH3XOjj'
 
 keystone::roles::admin::password: *admin_password
+
+# Shared secret for Neutron and Nova
+shared_secret: &shared_secret 'fieXae9upop9aed'
+nova::api::neutron_metadata_proxy_shared_secret: *shared_secret
+neutron::agents::metadata::shared_secret: *shared_secret
 
 cinder::api::keystone_password: &cinder_user_pass 'ZUYOLG2ycEXRida'
 cinder::keystone::authtoken::password: *cinder_user_pass

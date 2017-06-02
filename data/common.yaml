@@ -9,3 +9,11 @@ ntp::servers:
   - 3.pool.ntp.org
 
 rabbitmq::manage_repos: false
+
+lookup_options:
+  classifier::classes:
+    merge:
+      strategy: deep
+      knockout_prefix: "--"
+      unpack_arrays: ","
+      sort_merge_arrays: true
