@@ -15,8 +15,8 @@ class profiles::neutron(
   include ::neutron::agents::dhcp
   include ::neutron::server::notifications
 
-  exec { "modprobe dummmy":
-    command     => "modprobe dummmy",
+  exec { 'modprobe dummmy':
+    command     => 'modprobe dummmy',
     path        => '/sbin',
     user        => 'root',
     refreshonly => true,

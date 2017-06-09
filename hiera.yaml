@@ -1,15 +1,17 @@
 ---
 version: 5
 hierarchy:
-  - name: Common
+  - name: "My Hierarchy"
     paths:
       - "nodes/%{::fqdn}.yaml"
       - "role/%{::role}.yaml"
       - "role/common.yaml"
+      - "environments/%{::environment}/common.yaml"
+      - "environments/%{::environment}/os/%{::os.name}/%{::os.release.major}.yaml"
       - "os/%{::os.name}/%{::os.release.major}.yaml"
       - "virtual/%{::virtual}.yaml"
       - "common.yaml"
 
 defaults:
-  data_hash: yaml_data        # Use the YAML backend
+  data_hash: yaml_data
   datadir: "/usr/local/etc/puppet/code/environments/staging/data"

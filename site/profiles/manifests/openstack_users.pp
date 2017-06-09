@@ -12,7 +12,7 @@ class profiles::openstack_users(
   keystone_tenant { $project:
     ensure      => present,
     enabled     => true,
-    description => 'OpenStack Deployments Book Test Project',
+    description => 'OpenStack Project',
   }
 
   keystone_user { $username:

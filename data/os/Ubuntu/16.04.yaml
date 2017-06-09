@@ -1,4 +1,7 @@
 ---
+classes:
+  - apt
+
 # Hosts & IPs
 # This should automatically populate from Puppet, but if not, it
 # can be manually defined here:
@@ -93,6 +96,7 @@ keystone::roles::admin::admin: *admin_user
 keystone::roles::admin::email: "root@%{hiera('control_node')}"
 keystone::roles::admin::admin_roles:
  - 'admin'
+ - 'user'
  - '_member_'
  - 'SwiftOperator'
 keystone::roles::admin::admin_tenant_desc: "OpenStack on webterrorist.local"
@@ -390,11 +394,16 @@ horizon::allowed_hosts:
  - "*"
 horizon::api_versions:
     'identity': 3
+    'image': 2
+    'volume': 2
+horizon::configure_apache: true
+
 horizon::compress_offline: false
+horizon::keystone_default_role: 'user'
 apache::default_vhost: false
 horizon::django_session_engine: 'django.contrib.sessions.backends.cache'
 horizon::cache_backend: 'django.core.cache.backends.memcached.MemcachedCache'
-horizon::cache_server_ip: '127.0.0.1'
+horizon::cache_server_ip: *control_node
 horizon::cache_server_port: 11211
 
 # Keystone
@@ -436,6 +445,8 @@ neutron::plugins::ml2::tenant_network_types:
  - 'vxlan'
 neutron::plugins::ml2::mechanism_drivers:
  - 'openvswitch'
+neutron::plugins::ml2::network_vlan_ranges:
+ - 'openstack:50:100'
 neutron::agents::ml2::ovs::enable_tunneling: true
 neutron::agents::ml2::ovs::local_ip: *this_node
 neutron::agents::ml2::ovs::tunnel_types:
@@ -580,6 +591,7 @@ profiles::openstack_users::project: "test_project"
 profiles::openstack_users::username: "test"
 profiles::openstack_users::password: "foobar"
 profiles::openstack_users::roles:
+ - 'user'
  - '_member_'
  - 'SwiftOperator'
 deployments::profile::openrcs::openrcs:
@@ -603,3 +615,91 @@ tempest::config::tempest_config:
     object-storage/operator_role:
         path: '/tmp/tempest/etc/tempest.conf'
         value: 'SwiftOperator'
+
+apt::proxy:
+    host: 'puppet-staging.webterrorist.local'
+    port: '3128'
+    https: false
+apt::purge:
+    sources.list: true
+apt::sources:
+  'ubuntu':
+    comment: 'This is the local mirror for Ubuntu'
+    location: 'http://openstack.webterrorist.local/mirror/archive.ubuntu.com/ubuntu/'
+    release: 'xenial'
+    repos: 'main universe multiverse restricted'
+    key:
+      id: '630239CC130E1A7FD81A27B140976EAF437D05B5'
+      server: 'pgp.mit.edu'
+    include:
+      src: false
+      deb: true
+  'ubuntu-updates':
+    comment: 'This is the local mirror for Ubuntu'
+    location: 'http://openstack.webterrorist.local/mirror/archive.ubuntu.com/ubuntu/'
+    release: 'xenial-updates'
+    repos: 'main universe multiverse restricted'
+    key:
+      id: '630239CC130E1A7FD81A27B140976EAF437D05B5'
+      server: 'pgp.mit.edu'
+    include:
+      src: false
+      deb: true
+  'ubuntu-security':
+    comment: 'This is the local mirror for Ubuntu'
+    location: 'http://openstack.webterrorist.local/mirror/archive.ubuntu.com/ubuntu/'
+    release: 'xenial-security'
+    repos: 'main universe multiverse restricted'
+    key:
+      id: '630239CC130E1A7FD81A27B140976EAF437D05B5'
+      server: 'pgp.mit.edu'
+    include:
+      src: false
+      deb: true
+  'ubuntu-backports':
+    comment: 'This is the local mirror for Ubuntu'
+    location: 'http://openstack.webterrorist.local/mirror/archive.ubuntu.com/ubuntu/'
+    release: 'xenial-backports'
+    repos: 'main universe multiverse restricted'
+    key:
+      id: '630239CC130E1A7FD81A27B140976EAF437D05B5'
+      server: 'pgp.mit.edu'
+    include:
+      src: false
+      deb: true
+  'cloudarchive-ocata':
+    comment: 'This is the local mirror for Ubuntu'
+    location: 'http://openstack.webterrorist.local/mirror/ubuntu-cloud.archive.canonical.com/ubuntu/'
+    release: 'xenial-updates/ocata'
+    repos: 'main'
+    key:
+      id: '391A9AA2147192839E9DB0315EDB1B62EC4926EA'
+      server: 'keys.gnupg.net'
+      options: 'http-proxy=http://puppet-staging.webterrorist.local:3128'
+    include:
+      src: false
+      deb: true
+  'percona':
+    comment: 'This is the local mirror for Ubuntu'
+    location: 'http://openstack.webterrorist.local/mirror/repo.percona.com/apt/'
+    release: 'xenial'
+    repos: 'main universe multiverse restricted'
+    key:
+      id: '4D1BB29D63D98E422B2113B19334A25F8507EFA5'
+      server: 'keys.gnupg.net'
+      options: 'http-proxy=http://puppet-staging.webterrorist.local:3128'
+    include:
+      src: false
+      deb: true
+  'puppet':
+    comment: 'This is the local mirror for Ubuntu'
+    location: 'http://apt.puppetlabs.com'
+    release: 'xenial'
+    repos: 'PC1'
+    key:
+      id: '6F6B15509CF8E59E6E469F327F438280EF8D349F'
+      server: 'pgp.mit.edu'
+      options: 'http-proxy=http://puppet-staging.webterrorist.local:3128'
+    include:
+      src: false
+      deb: true

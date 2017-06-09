@@ -1,13 +1,11 @@
 ---
 classes:
-  - percona::repo
   - mysql::server
   - memcached
   - profiles::rabbitmq
   - profiles::base
   - profiles::keystone
-  - profiles::horizon
-  - nova
   - profiles::controller
   - profiles::neutron
   - profiles::glance
+  - profiles::designate
