@@ -1,0 +1,147 @@
+---
+
+# overide settings from os/Ubuntu/16.04.yaml
+
+# wheres my control_node?
+control_node: &control_node '172.16.70.12'
+
+
+# overide passwords
+# deployments::profile::users::password: "Xr3XQ0GOj5PEV6B"
+
+admin_password: &admin_password "c0qm8SaTf6Pk9p8"
+
+profiles::openstack_users::project: "dhojnik"
+profiles::openstack_users::username: "dhojnik"
+profiles::openstack_users::password: "Hmenus1bcep6NL0"
+
+rabbit_password: &rabbit_password 'CzEbq6sPaH3XOjj'
+
+keystone::roles::admin::password: *admin_password
+
+# Shared secret for Neutron and Nova
+shared_secret: &shared_secret 'fieXae9upop9aed'
+nova::api::neutron_metadata_proxy_shared_secret: *shared_secret
+neutron::agents::metadata::shared_secret: *shared_secret
+
+cinder::api::keystone_password: &cinder_user_pass 'ZUYOLG2ycEXRida'
+cinder::keystone::authtoken::password: *cinder_user_pass
+
+ceilometer::keystone::auth::password: &ceilometer_user_pass 'LEYUlKakl7th5Nj'
+ceilometer::keystone::auth::password: *ceilometer_user_pass
+ceilometer::api::keystone_password: *ceilometer_user_pass
+ceilometer::agent::auth::auth_password: *ceilometer_user_pass
+
+swift::keystone::auth::password: &swift_user_pass 'V7M8VKigOQ3jX4J'
+swift::proxy::authtoken::admin_password: *swift_user_pass
+
+ironic::keystone::auth::password: &ironic_user_pass 'b7w8BX5MRoy6LeS'
+ironic::api::admin_password: *ironic_user_pass
+
+neutron::keystone::auth::password: &neutron_user_pass 'YqeyZ0m2KuTeKIg'
+neutron::keystone::authtoken::password: *neutron_user_pass
+neutron::server::auth_password: *neutron_user_pass
+neutron::server::notifications::password: *neutron_user_pass
+
+tenant_for_router: &tenant_for_router 'dhojnik'
+
+nova::keystone::auth::password: &nova_user_pass 'Sp4lH2WM5n9HAbK'
+nova::keystone::authtoken::password: *nova_user_pass
+nova::api::admin_password: *nova_user_pass
+nova::placement::password: *nova_user_pass
+nova::keystone::auth_placement::password: *nova_user_pass
+nova::network::neutron::neutron_password: *neutron_user_pass
+
+glance::api::authtoken::password: &glance_user_pass 'taff9JIsH7J3kAD'
+glance::api::keystone_password: *glance_user_pass
+glance::registry::keystone_password: *glance_user_pass
+glance::keystone::auth::password: *glance_user_pass
+glance::registry::authtoken::password: *glance_user_pass
+
+mysql::server::root_password: 'cAJ5vORB6LHotEr'
+
+nova::db::mysql::password: &nova_db_pass 'Y7WJiDK4p6boV0a'
+nova::db::mysql_api::password: *nova_db_pass
+nova::db::mysql_placement::password: *nova_db_pass
+
+glance::db::mysql::password: 'Ts9vUloJwoh6yaQ'
+keystone::db::mysql::password: 'jaPQ0g0c9w8K8kl'
+cinder::db::mysql::password: 'hF6d9xuQ5d4Zd9t'
+ironic::db::mysql::password: 'lc4mBeh8CeVatIJ'
+neutron::db::mysql::password: 'b4WL6lN8j9qXiJK'
+ceilometer::db::mysql::password: 'VHajXeR2c2vLuWc'
+
+rabbitmq::default_pass: *rabbit_password
+default_transport_password: *rabbit_password
+
+deployments::tests::tempest::admin_password: *admin_password
+
+mysql_databases:
+  nova_api:
+    user: 'nova_api'
+    password: *nova_user_pass
+    host: '%'
+    grant: 'ALL'
+
+  nova_placement:
+    user: 'nova_placement'
+    password: *nova_user_pass
+    host: '%'
+    grant: 'ALL'
+
+# don't change settings above unless you know what you are doing!
+
+#keystone::roles::admin::email: "root@%{hiera('control_node')}"
+#keystone::public_endpoint: &keystone_public_endpoint "http://%{hiera('control_node')}:5000"
+#keystone::admin_endpoint: &keystone_admin_endpoint "http://%{hiera('control_node')}:35357"
+#glance::keystone::auth::public_url: &glance_url "http://%{hiera('control_node')}:9292"
+#ironic::keystone::auth::public_url: &ironic_url "http://%{hiera('control_node')}:6385"
+#cinder::keystone::authtoken::public_url: &cinder_api_url "http://%{hiera('control_node')}:8776/v1/%(tenant_id)s"
+#cinder::keystone::authtoken::public_url_v2: &cinder_api_url_v2 "http://%{hiera('control_node')}:8776/v2/%(tenant_id)s"
+#ceilometer::keystone::auth::public_url: &ceilometer_api_url "http://%{hiera('control_node')}:8777"
+#nova::keystone::auth::internal_url: &nova_api_url "http://%{hiera('control_node')}:8774/v2.1/%(tenant_id)s"
+#nova::keystone::auth_placement::internal_url: &nova_placemnt_url "http://%{hiera('control_node')}:8778"
+#swift::keystone::auth::public_url: &swift_api_url "http://%{hiera('control_node')}:8080/v1/%{hiera('swift::proxy::keystone::reseller_prefix')}%(tenant_id)s"
+#swift::keystone::auth::admin_url: "http://%{hiera('control_node')}:8080/v1"
+#neutron::keystone::auth::public_url: &neutron_api_url "http://%{hiera('control_node')}:9696"
+#designate::keystone::auth::public_url: &designate_api_url "http://%{hiera('control_node')}:9001"
+#nova::keystone::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
+nova::vncproxy::host: "%{hiera('control_node')}"
+nova::compute::vncproxy_host: "%{hiera('control_node')}"
+nova::compute::spice::server_proxyclient_address: "%{hiera('control_node')}"
+# nova::network::neutron::neutron_url: "http://%{hiera('control_node')}:9696"
+# glance::api::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
+# glance::registry::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
+designate::keystone::authtoken::auth_host: "%{hiera('control_node')}"
+memcached::listen_ip: "%{hiera('control_node')}"
+rabbit_host: &rabbit_host "%{hiera('control_node')}"
+# horizon::keystone_url: "http://%{hiera('control_node')}:5000/v3"
+horizon::cache_server_ip: "%{hiera('control_node')}"
+# neutron::keystone::authtoken::memcached_servers: "%{hiera('control_node')}:11211"
+# ceilometer::agent::auth::auth_url: "http://%{hiera('control_node')}:5000/v3"
+swift::storage: "%{hiera('control_node')}"
+swift::proxy::proxy_local_net_ip: "%{hiera('control_node')}"
+swift::storage::all::storage_local_net_ip: "%{hiera('control_node')}"
+
+
+neutron_network:
+  Network1:
+    shared: true
+    router_external: false
+    provider_network_type: 'vxlan'
+    ensure: present
+  ext-net:
+    shared: true
+    router_external: true
+    provider_network_type: 'flat'
+    provider_physical_network: 'br-ex'
+    ensure: present
+neutron_router:
+  Router1:
+    admin_state_up: true
+    tenant_name: *tenant_for_router
+    gateway_network_name: 'ext-net'
+    ensure: present
+neutron_router_interface:
+  Router1:Subnet1:
+    ensure: present
