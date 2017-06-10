@@ -22,6 +22,7 @@ class profiles::controller {
   include ::neutron::keystone::authtoken
   include ::nova::cell_v2::simple_setup
   include ::nova::network::neutron
+  include ::nova::wsgi::apache_placement
   include ::horizon
 
   package { 'nova-placement-api':

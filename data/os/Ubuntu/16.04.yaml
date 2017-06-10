@@ -9,7 +9,7 @@ this_node: &this_node "%{::ipaddress}"
 
 # Uncomment & edit the following line to set the IP address of your Control
 # node. This is the node where the API services, mysql, and RabbitMQ run.
-control_node: &control_node '172.16.70.12'
+control_node: &control_node '172.16.70.13'
 
 # Uncomment & edit the following line to set the IP address of your
 # Compute node. This is the node where VMs run.
@@ -76,11 +76,11 @@ debug: &debug "false"
 keystone::debug: *debug
 cinder::debug: *debug
 ceilometer::debug: *debug
-glance::api::debug: true
+glance::api::debug: *debug
 glance::registry::debug: true
 ironic::debug: *debug
 ironic::logging::debug: *debug
-nova::debug: *debug
+nova::debug: true
 neutron::debug: *debug
 neutron::agents::l3::debug: *debug
 neutron::agents::dhcp::debug: *debug
@@ -293,11 +293,14 @@ nova::consoleauth::enabled: true
 nova::conductor::enabled: true
 nova::scheduler::enabled: true
 nova::placement::enabled: true
+nova::wsgi::apache_placement::ssl: false
+nova::wsgi::apache_placement::api_port: '8778'
+nova::wsgi::apache_placement::path: '/'
 nova::vncproxy::enabled: true
 nova::volume::enabled: true
 nova::compute::spice::enabled: true
 nova::compute::spice::server_proxyclient_address: *control_node
-nova::compute::spice::proxy_host: "openstack.webterrorist.local"
+nova::compute::spice::proxy_host: *control_node
 nova::compute::spice::html5proxy_host: '0.0.0.0'
 nova::compute::spice::html5proxy_port: '6082'
 nova::compute::spice::keymap: 'de'
@@ -445,12 +448,21 @@ neutron::plugins::ml2::tenant_network_types:
  - 'vxlan'
 neutron::plugins::ml2::mechanism_drivers:
  - 'openvswitch'
+ - 'l2population'
+neutron::plugins::ml2::extension_drivers:
+ - 'port_security'
+ - 'dns'
 neutron::plugins::ml2::network_vlan_ranges:
  - 'openstack:50:100'
+neutron::plugins::ml2::vni_ranges:
+ - '10:1000'
 neutron::agents::ml2::ovs::enable_tunneling: true
 neutron::agents::ml2::ovs::local_ip: *this_node
 neutron::agents::ml2::ovs::tunnel_types:
  - 'vxlan'
+neutron::agents::ml2::ovs::enable_security_group: True
+neutron::agents::ml2::ovs::bridge_mappings:
+ - "openstack:br-ex"
 neutron::agents::dhcp: true
 neutron::service_plugins:
  - 'router'

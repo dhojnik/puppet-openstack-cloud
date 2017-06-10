@@ -3,7 +3,7 @@
 # overide settings from os/Ubuntu/16.04.yaml
 
 # wheres my control_node?
-control_node: &control_node '172.16.70.12'
+control_node: &control_node '172.16.70.13'
 
 
 # overide passwords

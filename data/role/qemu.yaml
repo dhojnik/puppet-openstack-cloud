@@ -1,0 +1,24 @@
+---
+classes:
+  - profiles::base
+  - profiles::compute
+
+nova::compute::libvirt::libvirt_virt_type: 'qemu'
+
+sync_db: &sync_db false
+glance::keystone::auth::configure_endpoint: false
+nova::api::service_neutron_metadata_proxy: false
+nova::api::enabled: false
+nova::cert::enabled: false
+nova::consoleauth::enabled: false
+nova::conductor::enabled: false
+nova::scheduler::enabled: false
+nova::placement::enabled: false
+nova::vncproxy::enabled: false
+nova::volume::enabled: false
+ceilometer::api::enabled: false
+swift::keystone::auth::configure_endpoint: false
+
+nova::db::database_connection: sqlite:///var/lib/nova/nova.sqlite
+nova::db::api_database_connection: sqlite:///var/lib/nova/nova.sqlite
+nova::db::placement_database_connection: sqlite:///var/lib/nova/nova.sqlite
